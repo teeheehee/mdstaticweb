@@ -11,10 +11,12 @@
 
 void Main()
 {
-	const string DbFile = @"C:\dev\website\website.sqlite3";
-	const string TemplatePath = @"C:\dev\website\templates";
-	const string SourcePath = @"C:\dev\website\src";
-	const string BuildOutputPath = @"C:\dev\website\build";
+	const string BasePath = @"C:\dev\website";
+	
+	const string DbFile = BasePath + @"\website.sqlite3";
+	const string TemplatePath = BasePath + @"\templates";
+	const string SourcePath = BasePath + @"\src";
+	const string BuildOutputPath = BasePath + @"\build";
 	
 	PrepareDatabase(DbFile);
 
