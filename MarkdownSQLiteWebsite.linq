@@ -105,7 +105,7 @@ void Main()
 	// TODO: Generate RSS XML feed
 }
 
-// Helpers
+#region Helpers
 
 public const string ReplacementTagRegexSearch = @"\${(.*?)}";
 public static Regex ReplacementTagRegex = new Regex(ReplacementTagRegexSearch,
@@ -219,7 +219,9 @@ private static string ApplyTagReplacements(string content, IDictionary<string, s
 	return results;
 }
 
-// Filesystem processing
+#endregion Helpers
+
+#region Filesystem processing
 
 public static IEnumerable<string> GetTemplateFiles(string path)
 {
@@ -328,7 +330,9 @@ public static IDictionary<string, string> GetTemplateFileNameReplacementTagValue
 	return results;
 }
 
-// Filesystem I/O
+#endregion Filesystem processing
+
+#region Filesystem I/O
 
 public static void CopyAsIsFiles(string sourcePath, string buildOutputPath, IEnumerable<string> sourceFiles)
 {
@@ -354,7 +358,9 @@ public static void CopyAsIsFiles(string sourcePath, string buildOutputPath, IEnu
 	}
 }
 
-// Source file processing
+#endregion Filesystem I/O
+
+#region Source file processing
 
 private static string GetReplacementTagFromYamlTag(string yamlTag)
 {
@@ -470,8 +476,9 @@ public static string GetListItemLinks(IEnumerable<TitleAndUrl> titleAndUrls)
 	return sb.ToString();
 }
 
+#endregion Source file processing
 
-// SQLite DB
+#region SQLite DB
 
 public static void PrepareDatabase(string dbFile)
 {
@@ -835,7 +842,9 @@ private static void CreateTableFromSql(string createTableSql, SQLiteConnection c
 	command.ExecuteNonQuery();
 }
 
-// Helper classes
+#endregion SQLite DB
+
+#region Helper classes
 
 public class UpsertRequest
 {
@@ -1336,3 +1345,170 @@ public class TitleAndUrl
 	public string Title { get; set; }
 	public string Url { get; set; }
 }
+
+#endregion Helper classes
+
+#region Deprecated
+
+//public static IDictionary<string, string> GetYamlFileReplacementTagValues(string filePath)
+//{
+//	$"Looking for replacement tags in yaml file: {filePath}".Dump();
+//
+//	var results = new Dictionary<string, string>();
+//	var content = File.ReadAllText(filePath);
+//	
+//	// https://markheath.net/post/markdown-html-yaml-front-matter
+//	var yamlDeserializer = new YamlDotNet.Serialization.DeserializerBuilder()
+//		.WithNamingConvention(CamelCaseNamingConvention.Instance)
+//		.Build();
+//
+//	using (var input = new StringReader(content))
+//	{
+//		var parser = new Parser(input);
+//		parser.Consume<StreamStart>();
+//		parser.Consume<DocumentStart>();
+//		var yaml = yamlDeserializer.Deserialize<Dictionary<string,string>>(parser);
+//		parser.Consume<DocumentEnd>();
+//		//yaml.Dump();
+//		//return yaml.To .ToDictionary(kv => (GetReplacementTagFromYamlTag(kv.Key), kv => kv.Value));
+//		foreach (var kvp in yaml)
+//		{
+//			results.Add(GetReplacementTagFromYamlTag(kvp.Key), kvp.Value);
+//		}
+//	}
+//	
+//	return results;
+//}
+
+
+//public static IEnumerable<string> GetAllTemplateFileReplacementTags(IEnumerable<string> templateFiles)
+//{
+//	"Getting replacement tags from template files".Dump();
+//	
+//	var templateReplacementTags = templateFiles.SelectMany(GetReplacementTagsFromFile).ToList();
+//	var uniqueTemplateReplacementTags = templateReplacementTags.Distinct().ToList();
+//	
+//	if (templateReplacementTags.Any())
+//	{
+//		$"All template files had {templateReplacementTags.Count} replacement tags, {uniqueTemplateReplacementTags.Count} unique tags".Dump();
+//		//templateReplacementTags.Dump();
+//	}
+//	else
+//	{
+//		"No replacement tags were found in any template files".Dump();
+//	}
+//	
+//	return templateReplacementTags;
+//}
+
+
+//public static void ProcessMarkdownFile(
+//	string filePath,
+//	string sourcePath,
+//	string buildOutputPath,
+//	IDictionary<string, string> templateFileNameReplacementTagValues,
+//	IDictionary<string, string> dbReplacementTagValues)
+//{
+//	$"Processing markdown file: {filePath}".Dump();
+//
+//	var markdownContent = File.ReadAllText(filePath);
+//
+//	var replacementTagValues = GetYamlFileContentReplacementTagValues(markdownContent);
+//
+//	var baseFilename = filePath.Replace(sourcePath, "").Replace(".md", ".html");
+//	var outputFilename = buildOutputPath + baseFilename;
+//
+//	var templateType = replacementTagValues["type"].ToLower();
+//	//var templateFileByType = templateFileNameReplacementTags[templateType];
+//
+//	EnsureSafeTemplateTree(templateType, templateFileNameReplacementTagValues, new List<string>());
+//
+//	var templateContents = ConstructFullTemplate(0, templateType, templateFileNameReplacementTagValues);
+//
+//
+//	// categorize available replacement tags
+//	// we replace in priority order from most to least significant
+//
+//	var replacementTags = GetReplacementTagsFromTemplateContents(templateContents);
+//
+//	var markdownReplacementTags = replacementTags.Where(rt => replacementTagValues.ContainsKey(rt));
+//	var dbReplacementTags = replacementTags.Where(rt => dbReplacementTagValues.ContainsKey(rt));
+//
+//
+//	foreach (var markdownReplacementTag in markdownReplacementTags)
+//	{
+//		templateContents = templateContents.Replace(
+//			$"${{{markdownReplacementTag}}}",
+//			replacementTagValues[markdownReplacementTag]);
+//	}
+//
+//	foreach (var dbReplacementTag in dbReplacementTags)
+//	{
+//		templateContents = templateContents.Replace(
+//			$"${{{dbReplacementTag}}}",
+//			dbReplacementTagValues[dbReplacementTag]);
+//	}
+//
+//	var numberOfMarkdownTabs = GetNumberOfTabsPriorToSearchString("markdown-content", templateContents);
+//
+//	var markdownPipeline = new Markdig.MarkdownPipelineBuilder()
+//		.UseYamlFrontMatter() // strip YAML content prior to HTML rendering
+//		.UseAutoIdentifiers() // adds IDs to header tags with unique value
+//		.Build();
+//
+//	// Fix line endings from Html process, and indent for applying to the template
+//	var markdownHtmlContent = IndentContent(
+//		numberOfMarkdownTabs,
+//		Markdig.Markdown.ToHtml(markdownContent, markdownPipeline).Replace("\n", Environment.NewLine));
+//
+//	templateContents = templateContents.Replace("${markdown-content}", markdownHtmlContent);
+//
+//	var pageRelativeUrl = baseFilename.Replace("\\", "/").TrimStart('/');
+//	var leadingCharacter = dbReplacementTagValues["baseurl"].EndsWith("/") ? "" : "/";
+//	var pageUrl = leadingCharacter + pageRelativeUrl;
+//
+//	templateContents = templateContents.Replace("${page-url}", pageUrl);
+//
+//	// Check our work before committing to outputting the file
+//	var remainingTags = ReplacementTagRegex.Matches(templateContents);
+//	if (remainingTags.Count > 0)
+//	{
+//		throw new Exception($"Did not replace all tags in file {filePath}: {string.Join(",", remainingTags)}");
+//	}
+//
+//	var fi = new FileInfo(outputFilename);
+//	var directory = fi.Directory.ToString();
+//
+//	if (!Directory.Exists(directory))
+//	{
+//		Directory.CreateDirectory(directory);
+//	}
+//
+//	using (FileStream fs = File.Create(outputFilename))
+//	{
+//		byte[] info = new UTF8Encoding(true).GetBytes(templateContents);
+//		fs.Write(info, 0, info.Length);
+//	}
+//}
+
+
+//public static string GetListItemLinks(IEnumerable<MarkdownFile> processedMarkdownFiles)
+//{
+//	var navigationPages = processedMarkdownFiles
+//		.Where(pmf => pmf.TemplateType == "page"
+//			&& ConvertYamlStringToBool(GetYamlValue("show-in-navigation", pmf.ReplacementTagValues, "no")))
+//		.OrderBy(pmf => ConvertYamlStringToInt(GetYamlValue("navigation-position", pmf.ReplacementTagValues)));
+//
+//	var sb = new StringBuilder();
+//	
+//	foreach (var navigationPage in navigationPages)
+//	{
+//		var url = $"{navigationPage.RelativeUrlPath}{navigationPage.BaseHtmlFilename}";
+//		var title = navigationPage.ReplacementTagValues["title"];
+//		sb.AppendLine($"<li><a href=\"{url}\">{title}</a></li>");
+//	}
+//	
+//	return sb.ToString();
+//}
+
+#endregion
