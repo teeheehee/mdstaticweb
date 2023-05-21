@@ -9,6 +9,31 @@
   <Namespace>Markdig</Namespace>
 </Query>
 
+/*
+
+Ideas:
+* store hash of all source files, compare to output file existence/hashes to determine build operation needed
+* images made available in multiple formats and sizes, applied to each image tag in HTML
+	? store as blob in DB? change to having an intermediate build folder with final destination folder?
+* navigation links include page or article title, article date below
+	* (external) template can use JS wrapper around dates to format for locale
+* hook in to language translation API and store/render site in multiple languages
+	* option to manually create different languages for pages or posts which take priority for output
+	* include image/media ALT and descriptions
+* treat each build operation as a renderer
+	* HTML renderer
+	* image renderer
+	* other media file renderers
+	* default file-copy "renderer"
+	? or just call these operations
+	* refactor to be adapters
+	* order of precendence
+* share on Mastodon link and description of new post
+	? separate DB and process?
+* hide future posts, order posts by post date and time
+
+*/
+
 void Main()
 {
 	const string BasePath = @"C:\dev\website";
@@ -92,10 +117,14 @@ void Main()
 	// Render everything
 	foreach (var markdownFile in processedMarkdownFiles)
 	{
+		// TODO: get post file navigation links and metadata
 		markdownFile.WriteOutputFile(renderTimeReplacements);
 	}
 
 	// TODO: Generate search JSON file of tags and related files
+	// TODO: Generate tags HTML files
+	// TODO: Generate other-language HTML files
+	// TODO: Generate social media post
 	
 	// TODO: Generate sitemaps for each rendered type of content,
 	// and an index sitemap to point to all of those
@@ -517,6 +546,7 @@ CREATE TABLE IF NOT EXISTS ""Pages""
 	""DateCreated"" TEXT NOT NULL,
 	""Filename"" TEXT NOT NULL,
 	""RelativePath"" TEXT NOT NULL,
+	""RelativeUrl"" TEXT NOT NULL UNIQUE,
 	""Url"" TEXT NOT NULL UNIQUE,
 	""Title"" TEXT NOT NULL,
 	""IncludeInNavigation"" INTEGER NOT NULL,
@@ -545,6 +575,7 @@ CREATE TABLE IF NOT EXISTS ""BlogPosts""
 	""DateCreated"" TEXT NOT NULL,
 	""Filename"" TEXT NOT NULL,
 	""RelativePath"" TEXT NOT NULL,
+	""RelativeUrl"" TEXT NOT NULL UNIQUE,
 	""Url"" TEXT NOT NULL UNIQUE,
 	""Title"" TEXT NOT NULL
 )
@@ -808,7 +839,7 @@ WHERE Tag IN ({string.Join(",", tagsList)})
 public static string GetNavigationPagesListItemLinks(SQLiteConnection connection)
 {
 	var query = @"
-SELECT Title, Url
+SELECT Title, RelativeUrl
 FROM Pages
 WHERE IncludeInNavigation = 1 AND NavigationPosition IS NOT NULL
 ORDER BY NavigationPosition ASC
@@ -828,7 +859,7 @@ ORDER BY NavigationPosition ASC
 				titleAndUrls.Add(new TitleAndUrl
 				{
 					Title = resultsReader["Title"].ToString(),
-					Url = resultsReader["Url"].ToString()
+					Url = resultsReader["RelativeUrl"].ToString()
 				});
 			}
 		}
@@ -977,6 +1008,7 @@ public abstract class MarkdownFile
 	public string BaseHtmlFilename { get; }
 	public string BaseUrl { get; }
 	public string RelativeUrlPath { get; }
+	public string RelativeUrl { get; }
 	public string Url { get; }
 	public string MarkdownContent { get; }
 	public string HtmlContent { get { return RenderedHtmlContent; } }
@@ -1016,7 +1048,9 @@ public abstract class MarkdownFile
 		BuildOutputFilePath = BuildOutputPath + RelativeFilePath + BaseHtmlFilename;
 		BaseUrl = baseUrl.TrimEnd('/');
 		RelativeUrlPath = RelativeFilePath.Replace(@"\", "/");
-		Url = new Uri(BaseUrl + RelativeUrlPath + BaseHtmlFilename).AbsoluteUri;
+		var fullUrl = new Uri(BaseUrl + RelativeUrlPath + BaseHtmlFilename);
+		Url = fullUrl.AbsoluteUri;
+		RelativeUrl = fullUrl.AbsolutePath;
 		
 		MarkdownContent = markdownContent;
 		ReplacementTagValues = yamlFileContentReplacementTagValues;
@@ -1168,6 +1202,7 @@ public class Page : MarkdownFile
 						{ "DateCreated", DateTime.Now.ToString("o") },
 						{ "Filename", BaseMarkdownFilename },
 						{ "RelativePath", RelativeUrlPath },
+						{ "RelativeUrl", RelativeUrl },
 						{ "Url", Url },
 						{ "Title", ReplacementTagValues["title"] },
 						{ "IncludeInNavigation", showInNavigation },
@@ -1238,6 +1273,7 @@ public class Post : MarkdownFile
 						//{ "DateCreated", DateTime.Now.ToString("o") },
 						{ "Filename", BaseMarkdownFilename },
 						{ "RelativePath", RelativeUrlPath },
+						{ "RelativeUrl", RelativeUrl },
 						{ "Url", Url },
 						{ "Title", ReplacementTagValues["title"] }
 					}
