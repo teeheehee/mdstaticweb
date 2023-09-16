@@ -136,122 +136,6 @@ void Main()
 	// TODO: Generate RSS XML feed
 }
 
-#region Helpers
-
-public const string ReplacementTagRegexSearch = @"\${(.*?)}";
-public static Regex ReplacementTagRegex = new Regex(ReplacementTagRegexSearch,
-	RegexOptions.Compiled | RegexOptions.IgnoreCase);
-
-public static string GetTagReplacementSearchString(string tag)
-{
-	// THIS ASSUMES TAG SYNTAX
-	return $"${{{tag}}}";
-}
-
-public static bool ConfirmAllReplacementTagsHaveReplacementValues(
-	IEnumerable<string> templateReplacementTags,
-	IEnumerable<IDictionary<string, string>> replacementTags)
-{
-	var result = true;
-	
-	foreach (var tag in templateReplacementTags)
-	{
-		if (!replacementTags.Any(d => d.ContainsKey(tag)))
-		{
-			$">>> '{tag}' has no match".Dump();
-			result = false;
-		}
-	}
-	
-	return result;
-}
-
-public static int GetNumberOfTabsPriorToSearchString(string searchString, string content)
-{
-	int result = 0;
-
-	var start = content.IndexOf(GetTagReplacementSearchString(searchString)) - 1;
-	while (start > 0 && content[start] == '\t')
-	{
-		result++;
-		start--;
-	}
-	
-	return result;
-}
-
-private static string IndentContent(int numberOfTabs, string content)
-{
-	var prefixTabs = GetTabs(numberOfTabs);
-	var sb = new StringBuilder();
-
-	foreach (var line in content.Split(new string[] { System.Environment.NewLine }, StringSplitOptions.None))
-	{
-		sb.AppendLine($"{prefixTabs}{line}");
-	}
-
-	// Trimming the start because this will get Replace'd into an already indented position
-	// Trimming the end to avoid introducing new NewLine's
-	return sb.ToString().Trim();
-}
-
-private static string GetTabs(int numberOfTabs)
-{
-	var tabs = "";
-	for (int i = 0; i < numberOfTabs; i++)
-	{
-		tabs += "\t";
-	}
-	return tabs;
-}
-
-private static bool ConvertYamlStringToBool(string value)
-{
-	var checkValue = value.ToLowerInvariant();
-	
-	switch (checkValue)
-	{
-		case "y":
-		case "yes":
-		case "t":
-		case "true":
-		case "1":
-			return true;
-		default:
-			return false;
-	}
-}
-
-private static int? ConvertYamlStringToInt(string value)
-{
-	if (int.TryParse(value, out int result))
-	{
-		return result;
-	}
-	else
-	{
-		return null;
-	}
-}
-
-private static string ApplyTagReplacements(string content, IDictionary<string, string> replacementTags)
-{
-	var results = content;
-	foreach (var replacementTag in replacementTags.Keys)
-	{
-		var numberOfTabs = GetNumberOfTabsPriorToSearchString(replacementTag, results);
-		var replacementText = IndentContent(numberOfTabs, replacementTags[replacementTag]);
-		var searchString = GetTagReplacementSearchString(replacementTag);
-
-		results = results.Replace(
-			searchString,
-			replacementText);
-	}
-	return results;
-}
-
-#endregion Helpers
-
 #region Filesystem processing
 
 public static IEnumerable<string> GetTemplateFiles(string path)
@@ -876,6 +760,122 @@ private static void CreateTableFromSql(string createTableSql, SQLiteConnection c
 }
 
 #endregion SQLite DB
+
+#region Helper properties and methods
+
+public const string ReplacementTagRegexSearch = @"\${(.*?)}";
+public static Regex ReplacementTagRegex = new Regex(ReplacementTagRegexSearch,
+	RegexOptions.Compiled | RegexOptions.IgnoreCase);
+
+public static string GetTagReplacementSearchString(string tag)
+{
+	// THIS ASSUMES TAG SYNTAX
+	return $"${{{tag}}}";
+}
+
+public static bool ConfirmAllReplacementTagsHaveReplacementValues(
+	IEnumerable<string> templateReplacementTags,
+	IEnumerable<IDictionary<string, string>> replacementTags)
+{
+	var result = true;
+
+	foreach (var tag in templateReplacementTags)
+	{
+		if (!replacementTags.Any(d => d.ContainsKey(tag)))
+		{
+			$">>> '{tag}' has no match".Dump();
+			result = false;
+		}
+	}
+
+	return result;
+}
+
+public static int GetNumberOfTabsPriorToSearchString(string searchString, string content)
+{
+	int result = 0;
+
+	var start = content.IndexOf(GetTagReplacementSearchString(searchString)) - 1;
+	while (start > 0 && content[start] == '\t')
+	{
+		result++;
+		start--;
+	}
+
+	return result;
+}
+
+private static string IndentContent(int numberOfTabs, string content)
+{
+	var prefixTabs = GetTabs(numberOfTabs);
+	var sb = new StringBuilder();
+
+	foreach (var line in content.Split(new string[] { System.Environment.NewLine }, StringSplitOptions.None))
+	{
+		sb.AppendLine($"{prefixTabs}{line}");
+	}
+
+	// Trimming the start because this will get Replace'd into an already indented position
+	// Trimming the end to avoid introducing new NewLine's
+	return sb.ToString().Trim();
+}
+
+private static string GetTabs(int numberOfTabs)
+{
+	var tabs = "";
+	for (int i = 0; i < numberOfTabs; i++)
+	{
+		tabs += "\t";
+	}
+	return tabs;
+}
+
+private static bool ConvertYamlStringToBool(string value)
+{
+	var checkValue = value.ToLowerInvariant();
+
+	switch (checkValue)
+	{
+		case "y":
+		case "yes":
+		case "t":
+		case "true":
+		case "1":
+			return true;
+		default:
+			return false;
+	}
+}
+
+private static int? ConvertYamlStringToInt(string value)
+{
+	if (int.TryParse(value, out int result))
+	{
+		return result;
+	}
+	else
+	{
+		return null;
+	}
+}
+
+private static string ApplyTagReplacements(string content, IDictionary<string, string> replacementTags)
+{
+	var results = content;
+	foreach (var replacementTag in replacementTags.Keys)
+	{
+		var numberOfTabs = GetNumberOfTabsPriorToSearchString(replacementTag, results);
+		var replacementText = IndentContent(numberOfTabs, replacementTags[replacementTag]);
+		var searchString = GetTagReplacementSearchString(replacementTag);
+
+		results = results.Replace(
+			searchString,
+			replacementText);
+	}
+	return results;
+}
+
+#endregion Helpers
 
 #region Helper classes
 
