@@ -6,10 +6,13 @@ namespace MarkdownStaticWebsite.Repositories
 {
     public static class WebsiteData
     {
+        /// <summary>
+        /// Attempts to connect to the configuration database SQLite file.
+        /// Creates the database if it does not exist.
+        /// Attempts to create required tables in the database if they do not exist.
+        /// </summary>
         public static void PrepareDatabase(string dbFile)
         {
-            //"Making sure the database is available and has tables in it".Dump();
-
             using var connection = new SQLiteConnection($"Data Source={dbFile}");
             connection.Open();
             PrepareReplacementValuesTable(connection);

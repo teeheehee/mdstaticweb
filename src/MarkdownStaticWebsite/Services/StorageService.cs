@@ -17,10 +17,9 @@ namespace MarkdownStaticWebsite.Services
             return Instance;
         }
 
-        public static void PrepareDatabase()
+        public void PrepareDatabase()
         {
-            WebsiteData.PrepareDatabase(ConfigurationService.GetConfigurationService().Configuration.DbFile);
-            //WebsiteData.PrepareDatabase(Configuration.GetConfiguration().DbFile);
+            WebsiteData.PrepareDatabase(ConfigurationService.GetService().Configuration.DatabaseFile);
         }
     }
 }

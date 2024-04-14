@@ -4,24 +4,15 @@ namespace MarkdownStaticWebsite.Entities
     public class Configuration
     {
         private static readonly string DefaultBasePath = AppContext.BaseDirectory ?? @"C:\dev\website\";
-        //private static readonly string DefaultConfigurationName = AppDomain.CurrentDomain.FriendlyName.Replace(".exe", ".json");
-        //private static readonly string DefaultConfigurationName = "defaultConfig.json";
-        //private static readonly string DefaultConfigurationFile = DefaultBasePath + @$"{DefaultConfigurationName}";
-        private static readonly string DefaultDbFile = DefaultBasePath + @"website.sqlite3";
-        private static readonly string DefaultTemplatePath = DefaultBasePath + @"templates";
-        private static readonly string DefaultSourcePath = DefaultBasePath + @"src";
-        private static readonly string DefaultBuildOutputPath = DefaultBasePath + @"build";
+        private static readonly string DefaultDbFile = Path.Combine(DefaultBasePath, "website.sqlite3");
+        private static readonly string DefaultTemplatesPath = Path.Combine(DefaultBasePath, "templates");
+        private static readonly string DefaultSourcePath = Path.Combine(DefaultBasePath, "src");
+        private static readonly string DefaultBuildOutputPath = Path.Combine(DefaultBasePath, "build");
 
-        //[JsonPropertyName("BasePath")]
-        public string BasePath { get; set; } = DefaultBasePath;
-        //[JsonPropertyName("DbFile")]
-        public string DbFile { get; set; } = DefaultDbFile;
-        //[JsonPropertyName("TemplatePath")]
-        public string TemplatePath { get; set; } = DefaultTemplatePath;
-        //[JsonPropertyName("SourcePath")]
-        public string SourcePath { get; set; } = DefaultSourcePath;
-        //[JsonPropertyName("BuildOutputPath")]
-        public string BuildOutputPath { get; set; } = DefaultBuildOutputPath;
+        public string DatabaseFile { get; set; } = DefaultDbFile;
+        public string TemplatesFilesPath { get; set; } = DefaultTemplatesPath;
+        public string ContentSourcePath { get; set; } = DefaultSourcePath;
+        public string BuildSiteOutputPath { get; set; } = DefaultBuildOutputPath;
 
         public Configuration() { }
 

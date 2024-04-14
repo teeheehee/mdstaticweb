@@ -7,7 +7,7 @@ namespace MarkdownStaticWebsite.Services
     {
         private static readonly string DefaultBasePath = AppContext.BaseDirectory ?? @"C:\dev\website\";
         private static readonly string DefaultConfigurationName = "defaultConfig.json";
-        private static readonly string DefaultConfigurationFile = DefaultBasePath + @$"{DefaultConfigurationName}";
+        private static readonly string DefaultConfigurationFile = Path.Combine(DefaultBasePath, DefaultConfigurationName);
 
         public string ConfigurationFile { get; set; } = DefaultConfigurationFile;
 
@@ -25,13 +25,13 @@ namespace MarkdownStaticWebsite.Services
             Configuration = GetConfiguration(ConfigurationFile, shouldCreateFile);
         }
 
-        public static ConfigurationService GetConfigurationService()
+        public static ConfigurationService GetService()
         {
             Instance ??= new ConfigurationService();
             return Instance;
         }
 
-        public static ConfigurationService GetConfigurationService(
+        public static ConfigurationService GetService(
             bool shouldCreateFile = false)
         {
             var fileFullPath = Instance?.ConfigurationFile ?? DefaultConfigurationFile;
@@ -39,7 +39,7 @@ namespace MarkdownStaticWebsite.Services
             return Instance;
         }
 
-        public static ConfigurationService GetConfigurationService(
+        public static ConfigurationService GetService(
             string fileFullPath, bool shouldCreateFile = false)
         {
             Instance = new ConfigurationService(fileFullPath, shouldCreateFile);
@@ -51,7 +51,7 @@ namespace MarkdownStaticWebsite.Services
         //    return GetConfiguration(DefaultConfigurationFile, shouldCreateFile);
         //}
 
-        private static Configuration GetConfiguration(string fileFullPath, bool shouldCreateFile = false)
+        public static Configuration GetConfiguration(string fileFullPath, bool shouldCreateFile = false)
         {
             var fileExists = File.Exists(fileFullPath);
 
@@ -73,14 +73,14 @@ namespace MarkdownStaticWebsite.Services
         //    return ToFile(fileFullPath, ConfigurationService.GetConfigurationService().Configuration);
         //}
 
-        private static Configuration ToFile(string fileFullPath, Configuration configuration)
+        public static Configuration ToFile(string fileFullPath, Configuration configuration)
         {
             var json = ToJson(configuration);
             File.WriteAllText(fileFullPath, json);
             return configuration;
         }
 
-        private static Configuration FromFile(string fileFullPath)
+        public static Configuration FromFile(string fileFullPath)
         {
             string json = File.ReadAllText(fileFullPath);
             return FromJson(json);
@@ -91,20 +91,20 @@ namespace MarkdownStaticWebsite.Services
         //    return ToJson(ConfigurationService.GetConfigurationService().Configuration);
         //}
 
-        private static string ToJson(Configuration configuration)
+        public static string ToJson(Configuration configuration)
         {
-            var options = new JsonSerializerOptions { WriteIndented = true };
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
             return JsonSerializer.Serialize(configuration, options);
         }
 
-        private static Configuration FromJson(string json)
+        public static Configuration FromJson(string json)
         {
             var options = new JsonSerializerOptions(JsonSerializerDefaults.Web);
             var configuration = JsonSerializer.Deserialize<Configuration>(json, options);
             return configuration ?? new Configuration();
         }
 
-        private static Configuration CreateDefaultConfigurationFile(string fileFullPath)
+        public static Configuration CreateDefaultConfigurationFile(string fileFullPath)
         {
             var defaultConfiguration = new Configuration();
             ToFile(fileFullPath, defaultConfiguration);

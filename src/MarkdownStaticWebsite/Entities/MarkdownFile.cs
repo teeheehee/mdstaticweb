@@ -40,22 +40,32 @@ namespace MarkdownStaticWebsite.Entities
             IDictionary<string, string> templateFileNameReplacementTagValues,
             IDictionary<string, string> dbReplacementTagValues)
         {
-            //$"Preparing markdown file: {sourceFilePath}".Dump();
-
             SourceFilePath = sourceFilePath;
             SourcePath = new DirectoryInfo(sourcePath).ToString();
             BuildOutputPath = new DirectoryInfo(buildOutputPath).ToString();
+
+            SourcePath = Path.EndsInDirectorySeparator(SourcePath)
+                ? SourcePath
+                : $"{SourcePath}{Path.DirectorySeparatorChar}";
+            BuildOutputPath = Path.EndsInDirectorySeparator(BuildOutputPath)
+                ? BuildOutputPath
+                : $"{BuildOutputPath}{Path.DirectorySeparatorChar}";
 
             var sourceFile = new FileInfo(SourceFilePath);
 
             BaseMarkdownFilename = sourceFile.Name;
             BaseHtmlFilename = BaseMarkdownFilename.Replace(".md", ".html");
 
-            RelativeFilePath = $@"{sourceFile.Directory?.ToString().Replace(SourcePath, "")}\";
+            // Later on, Path.Combine gets used and it can be a bit messy to work with so we need to do some string manipulations.
+            // Path.Combine doesn't play well with relative paths that look like absolute paths in 2nd, 3rd, ... parameters,
+            // it'll just skip the first parameter in those cases
+            RelativeFilePath = $@"{sourceFile.Directory?.ToString().Replace(Path.TrimEndingDirectorySeparator(SourcePath), "")}"
+                .TrimStart(Path.DirectorySeparatorChar);
 
-            BuildOutputFilePath = BuildOutputPath + RelativeFilePath + BaseHtmlFilename;
+            BuildOutputFilePath = Path.Combine(BuildOutputPath, RelativeFilePath, BaseHtmlFilename);
             BaseUrl = baseUrl.TrimEnd('/');
-            RelativeUrlPath = RelativeFilePath.Replace(@"\", "/");
+            RelativeUrlPath = "/" + RelativeFilePath.Replace($"{Path.DirectorySeparatorChar}", "/") + (RelativeFilePath.Length > 0 ? "/" : "");
+
             var fullUrl = new Uri(BaseUrl + RelativeUrlPath + BaseHtmlFilename);
             Url = fullUrl.AbsoluteUri;
             RelativeUrl = fullUrl.AbsolutePath;
