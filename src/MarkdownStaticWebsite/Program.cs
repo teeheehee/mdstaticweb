@@ -5,6 +5,7 @@ using MarkdownStaticWebsite.Modules;
 using MarkdownStaticWebsite.Repositories;
 using MarkdownStaticWebsite.Services;
 using System.Data.SQLite;
+using System.Text;
 
 
 // TODO: Generate help text on the console
@@ -85,3 +86,28 @@ foreach (var markdownFile in processedMarkdownFiles)
     Console.WriteLine($"Writing html from markdown file: {markdownFile.BaseMarkdownFilename}");
     markdownFile.WriteOutputFile(renderTimeReplacements);
 }
+
+// TODO: refactor and programmatically generate
+// sitemap XML file
+var sitemapXmlBuilder = new StringBuilder();
+sitemapXmlBuilder.AppendLine(@"<?xml version=""1.0"" encoding=""UTF-8""?>");
+sitemapXmlBuilder.AppendLine(@"<urlset xmlns=""http://www.sitemaps.org/schemas/sitemap/0.9"">");
+
+foreach (var markdownFile in processedMarkdownFiles.Where(f => f.GetType() == typeof(Page)))
+{
+    //Console.WriteLine(markdownFile.BaseHtmlFilename);
+    var fileInfo = new FileInfo(markdownFile.SourceFilePath);
+    var dateModified = fileInfo.LastWriteTime;
+
+    sitemapXmlBuilder.AppendLine("\t<url>");
+    sitemapXmlBuilder.AppendLine($"\t\t<loc>{markdownFile.Url}</loc>");
+    sitemapXmlBuilder.AppendLine($"\t\t<lastmod>{dateModified.ToString("o")}</lastmod>");
+    sitemapXmlBuilder.AppendLine("\t</url>");
+}
+sitemapXmlBuilder.AppendLine("</urlset>");
+
+var path = Path.EndsInDirectorySeparator(ConfigurationService.GetService().Configuration.BuildSiteOutputPath)
+                ? ConfigurationService.GetService().Configuration.BuildSiteOutputPath
+                : $"{ConfigurationService.GetService().Configuration.BuildSiteOutputPath}{Path.DirectorySeparatorChar}";
+var sitemapFile = $"{path}sitemap.xml";
+File.WriteAllText(sitemapFile, sitemapXmlBuilder.ToString());
