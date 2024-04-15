@@ -12,7 +12,7 @@ using System.Text;
 
 // TODO: Pass configuration file in as a command line parameter
 //Console.WriteLine(Environment.GetCommandLineArgs()[1]);
-ConfigurationService.GetService(Environment.GetCommandLineArgs()[1]);
+ConfigurationService.GetService(args.ToList().FirstOrDefault());
 //ConfigurationService.GetConfigurationService("C:\\temp\\website_test.config");
 
 // TODO: Validate configuration file
