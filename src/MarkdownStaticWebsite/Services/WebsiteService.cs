@@ -56,9 +56,9 @@ namespace MarkdownStaticWebsite.Services
                 }
 
                 var fi = new FileInfo(outputFilename);
-                var directory = fi.Directory.ToString();
+                var directory = fi?.Directory?.ToString();
 
-                if (!Directory.Exists(directory))
+                if ((directory != null) && (!Directory.Exists(directory)))
                 {
                     Directory.CreateDirectory(directory);
                 }

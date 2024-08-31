@@ -12,7 +12,9 @@ using System.Text;
 
 // TODO: Pass configuration file in as a command line parameter
 //Console.WriteLine(Environment.GetCommandLineArgs()[1]);
+#pragma warning disable CS8604 // Possible null reference argument.
 ConfigurationService.GetService(args.ToList().FirstOrDefault());
+#pragma warning restore CS8604 // Possible null reference argument.
 //ConfigurationService.GetConfigurationService("C:\\temp\\website_test.config");
 
 // TODO: Validate configuration file

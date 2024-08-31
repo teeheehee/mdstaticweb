@@ -3,7 +3,7 @@ namespace MarkdownStaticWebsite.Entities
 {
     public class TitleAndUrl
     {
-        public string Title { get; set; }
-        public string Url { get; set; }
+        public required string Title { get; set; }
+        public required string Url { get; set; }
     }
 }

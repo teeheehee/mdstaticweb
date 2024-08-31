@@ -4,9 +4,9 @@ namespace MarkdownStaticWebsite.Entities
 {
     public class UpsertRequest
     {
-        public string TableName { get; set; }
-        public string WhereQualifier { get; set; }
-        public string CollisionField { get; set; }
+        public required string TableName { get; set; }
+        public string WhereQualifier { get; set; } = string.Empty;
+        public string CollisionField { get; set; } = string.Empty;
         public IEnumerable<string> CollisionUpdateFields { get; set; } = new List<string>();
         public IDictionary<string, object> ColumnValuePairs { get; set; } = new Dictionary<string, object>();
 
@@ -46,7 +46,7 @@ INSERT INTO {TableName}
             foreach (var column in columns)
             {
                 // TODO: more cases, if needed
-                object value;
+                object? value;
                 if (ColumnValuePairs[column] == null)
                 {
                     value = null;
