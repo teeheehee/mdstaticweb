@@ -25,16 +25,14 @@ The project is just to the point where it is being converted to a .NET solution.
 
 # Technologies so far
 
-* C#
-    * [YamlDotNet][YamlDotNet link]
-    * [Markdig][Markdig link]
-    * [System.Data.SQLite][System.Data.SQLite link]
-* [LINQPad][LINQPad link]
-* [VisualStudio Code][VisualStudio Code link]
-* [SQLite3][SQLite link]
-    * [SQLite Browser][SQLite Browser link]
-* [AngleSharp][AngleSharp link] library
-* [Markdig][Markdig extensions code link] markdown library
+* C# [LINQPad](https://www.linqpad.net)
+* C# .NET Core console application
+* [YamlDotNet](https://github.com/aaubry/YamlDotNet/wiki)
+* [SQLite3](https://www.sqlite.org/index.html)
+    * [SQLite Browser](https://sqlitebrowser.org/)
+    * [System.Data.SQLite](https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki)
+* [AngleSharp](https://github.com/AngleSharp/AngleSharp/) library
+* [Markdig](https://github.com/xoofx/markdig) and [Markdig extensions](https://github.com/xoofx/markdig/tree/master/src/Markdig/Extensions) markdown library
 
 # Reference and research links
 
@@ -58,16 +56,5 @@ These are things I had tabs open in my browser while doing bits and pieces of th
 * [SQLite docs for upsert command](https://www.sqlite.org/lang_UPSERT.html)
 * [MSDN C# docs for `Microsoft.Data.Sqlite` and parameters](https://learn.microsoft.com/en-us/dotnet/standard/data/sqlite/parameters)
 * [SQLite docs for table constraints](https://www.sqlite.org/syntax/column-constraint.html)
-* [factory (pattern)][factory pattern link]
-
-[LINQPad link]: https://www.linqpad.net
-[VisualStudio Code link]: https://code.visualstudio.com
-[YamlDotNet link]: https://github.com/aaubry/YamlDotNet/wiki
-[Markdig link]: https://github.com/xoofx/markdig
-[System.Data.SQLite link]: https://system.data.sqlite.org/index.html/doc/trunk/www/index.wiki
-[SQLite link]: https://www.sqlite.org/index.html
-[SQLite Browser link]: sqlitebrowser.org/
-[AngleSharp link]: https://github.com/AngleSharp/AngleSharp/
-[Markdig extensions code link]: https://github.com/xoofx/markdig/tree/master/src/Markdig/Extensions
-[figure HTML tag documentation link]: https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure
-[factory pattern link]: https://dotnettutorials.net/lesson/factory-design-pattern-csharp/
+* [figure HTML tag documentation link](https://developer.mozilla.org/en-US/docs/Web/HTML/Element/figure)
+* [factory (pattern)](https://dotnettutorials.net/lesson/factory-design-pattern-csharp/)
