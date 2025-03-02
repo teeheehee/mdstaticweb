@@ -13,6 +13,11 @@ namespace MarkdownStaticWebsite.Modules
             IDictionary<string, string> dbReplacementTagValues)
         {
             var markdownContent = File.ReadAllText(sourceFilePath);
+            if (string.IsNullOrWhiteSpace(markdownContent))
+            {
+                throw new Exception($"No content found from file: {sourceFilePath}");
+            }
+
             var yamlFileContentReplacementTagValues = YamlHelpers.GetYamlFileContentReplacementTagValues(markdownContent);
 
             var templateType = yamlFileContentReplacementTagValues["type"].ToLower();

@@ -19,6 +19,7 @@ namespace MarkdownStaticWebsite.Entities
         public string RelativeUrl { get; }
         public string Url { get; }
         public string MarkdownContent { get; }
+        public string MarkdownHtmlContent { get; }
         public string HtmlContent { get { return RenderedHtmlContent; } }
         public string TemplateType { get; }
         public IDictionary<string, string> ReplacementTagValues { get; }
@@ -113,12 +114,12 @@ namespace MarkdownStaticWebsite.Entities
                 .Build();
 
             // Fix line endings from Html process, and indent for applying to the template
-            var markdownHtmlContent = Parser.IndentContent(
+            MarkdownHtmlContent = Parser.IndentContent(
                 numberOfMarkdownTabs,
-                Markdig.Markdown.ToHtml(MarkdownContent, markdownPipeline).Replace("\n", Environment.NewLine));
+                Markdown.ToHtml(MarkdownContent, markdownPipeline).Replace("\n", Environment.NewLine));
 
             templateContents = templateContents
-                .Replace(Parser.GetTagReplacementSearchString(MarkdownContentTag), markdownHtmlContent)
+                .Replace(Parser.GetTagReplacementSearchString(MarkdownContentTag), MarkdownHtmlContent)
                 .Replace(Parser.GetTagReplacementSearchString(PageUrlTag), Url);
 
             RenderedHtmlContent = templateContents;

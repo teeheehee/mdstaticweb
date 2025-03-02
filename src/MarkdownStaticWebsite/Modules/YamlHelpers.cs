@@ -52,6 +52,7 @@ namespace MarkdownStaticWebsite.Modules
         public static IDictionary<string, string> GetYamlFileContentReplacementTagValues(string content)
         {
             var results = new Dictionary<string, string>();
+            if (string.IsNullOrWhiteSpace(content)) return results;
 
             // https://markheath.net/post/markdown-html-yaml-front-matter
             var yamlDeserializer = new YamlDotNet.Serialization.DeserializerBuilder()

@@ -13,11 +13,19 @@ namespace MarkdownStaticWebsite.Repositories
         /// </summary>
         public static void PrepareDatabase(string dbFile)
         {
+            var isDbFileAlreadyThere = File.Exists(dbFile);
             using var connection = new SQLiteConnection($"Data Source={dbFile}");
             connection.Open();
             PrepareReplacementValuesTable(connection);
             PreparePagesTables(connection);
             PrepareBlogTables(connection);
+            if (!isDbFileAlreadyThere)
+            {
+                Console.WriteLine($"Database just created: {dbFile}");
+                // TODO: Add all required ReplacementValues items
+                Console.WriteLine("In the ReplacementValues table: add an row with FieldName 'baseurl' and value like 'https://your.website'");
+                throw new Exception($"Must initialize new database with a baseurl {dbFile}");
+            }
         }
 
         private static void PrepareReplacementValuesTable(SQLiteConnection connection)
