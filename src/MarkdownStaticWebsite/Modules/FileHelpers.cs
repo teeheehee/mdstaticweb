@@ -21,7 +21,6 @@ namespace MarkdownStaticWebsite.Modules
             return Directory.EnumerateFiles(sourcePath, "*.*", SearchOption.AllDirectories).ToList();
         }
 
-
         /// <summary>
         /// Finds all "*.md" markdown files in a directory tree and returns a list of fully qualified
         /// path + filename references to them.
@@ -35,13 +34,11 @@ namespace MarkdownStaticWebsite.Modules
         /// <summary>
         /// Finds all "*.jpg, *.jpeg, *.gif, *.png" image files in a directory tree and returns
         /// a list of fully qualified path + filename references to them.
-        /// 
-        /// Attempts to skip favicons from the final list.
         /// </summary>
-        public static IEnumerable<string> GetImageFilesToProcess(
-            IEnumerable<string> sourceFiles,
-            IDictionary<string, string> dbReplacementTagValues)
+        public static IEnumerable<string> GetImageFilesToProcess(string imagesSourcePath)
         {
+            var filesInImagesPath = Directory.EnumerateFiles(imagesSourcePath, "*.*", SearchOption.AllDirectories).ToList();
+
             var imageFileExtensions = new List<string>()
             {
                 ".jpg",
@@ -54,13 +51,7 @@ namespace MarkdownStaticWebsite.Modules
 
             foreach (var extension in imageFileExtensions)
             {
-                var relatedFiles = sourceFiles.Where(f => f.ToLowerInvariant().EndsWith(extension));
-
-                // remove images that are favicons
-                foreach (var replacement in dbReplacementTagValues.Where(kvp => kvp.Value.EndsWith(extension)))
-                {
-                    relatedFiles = relatedFiles.Where(rf => !rf.Contains(replacement.Value.Replace('/', '\\')));
-                }
+                var relatedFiles = filesInImagesPath.Where(f => f.ToLowerInvariant().EndsWith(extension));
 
                 results.AddRange(relatedFiles);
             }

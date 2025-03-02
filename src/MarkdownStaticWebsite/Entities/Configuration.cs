@@ -7,11 +7,13 @@ namespace MarkdownStaticWebsite.Entities
         private static readonly string DefaultDbFile = Path.Combine(DefaultBasePath, "website.sqlite3");
         private static readonly string DefaultTemplatesPath = Path.Combine(DefaultBasePath, "templates");
         private static readonly string DefaultSourcePath = Path.Combine(DefaultBasePath, "src");
+        private static readonly string DefaultImageFilesToProcessPath = Path.Combine(DefaultSourcePath, "images");
         private static readonly string DefaultBuildOutputPath = Path.Combine(DefaultBasePath, "build");
 
         public string DatabaseFile { get; set; } = DefaultDbFile;
         public string TemplatesFilesPath { get; set; } = DefaultTemplatesPath;
         public string ContentSourcePath { get; set; } = DefaultSourcePath;
+        public string ImageFilesToProcessPath { get; set; } = DefaultImageFilesToProcessPath;
         public string BuildSiteOutputPath { get; set; } = DefaultBuildOutputPath;
 
         public Configuration() { }

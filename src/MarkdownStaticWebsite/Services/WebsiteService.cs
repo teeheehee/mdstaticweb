@@ -25,7 +25,7 @@ namespace MarkdownStaticWebsite.Services
             var allSourceFiles = FileHelpers
                 .GetAllSourceFiles(ConfigurationService.GetService().Configuration.ContentSourcePath);
             var imageFilesToProcess = FileHelpers
-                .GetImageFilesToProcess(allSourceFiles, dbReplacementTagValues);
+                .GetImageFilesToProcess(ConfigurationService.GetService().Configuration.ImageFilesToProcessPath);
             var markdownFilesToProcess = FileHelpers
                 .GetMarkdownFiles(allSourceFiles);
 
