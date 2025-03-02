@@ -53,7 +53,11 @@ namespace MarkdownStaticWebsite.Services
                 var baseFilename = sourceFile.Replace(sourcePath, "");
                 var outputFilename = Path.Combine(buildOutputPath, baseFilename);
 
-                if (File.Exists(outputFilename))
+                var destinationFileExists = File.Exists(outputFilename);
+                var overwriteDetinationFile = destinationFileExists
+                    && !FileHelpers.GetMD5Checksum(sourceFile).Equals(FileHelpers.GetMD5Checksum(outputFilename));
+
+                if (destinationFileExists && !overwriteDetinationFile)
                 {
                     continue;
                 }
@@ -66,7 +70,8 @@ namespace MarkdownStaticWebsite.Services
                     Directory.CreateDirectory(directory);
                 }
 
-                File.Copy(sourceFile, outputFilename);
+                Console.WriteLine($"Copying file as-is: {sourceFile} .. {outputFilename}");
+                File.Copy(sourceFile, outputFilename, overwriteDetinationFile);
             }
         }
 

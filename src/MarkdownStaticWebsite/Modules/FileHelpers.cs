@@ -75,5 +75,21 @@ namespace MarkdownStaticWebsite.Modules
 
             return results;
         }
+
+        /// <summary>
+        /// Computes MD5 checksum for a file.
+        /// Copied from: https://makolyte.com/csharp-get-a-files-checksum-using-any-hashing-algorithm-md5-sha256/
+        /// </summary>
+        public static string GetMD5Checksum(string filename)
+        {
+            using (var md5 = System.Security.Cryptography.MD5.Create())
+            {
+                using (var stream = File.OpenRead(filename))
+                {
+                    var hash = md5.ComputeHash(stream);
+                    return BitConverter.ToString(hash).Replace("-", "");
+                }
+            }
+        }
     }
 }
