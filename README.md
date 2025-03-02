@@ -1,10 +1,8 @@
 # mdstaticweb
-Static website generator for markdown content
+Static website generator based on markdown files for content in Pages and blog Posts.
 
 ## Background
-This project is about building a new static HTML website using markdown files as the primary source of content.
-
-In the first iteration I scripted some tools to build the site using C# and [LINQPad][LINQPad link] which allowed me to keep to a somewhat experimental approach and prototype some structure to the process.
+In the first iteration of this project built a site using C# and [LINQPad][LINQPad link] which allowed for a somewhat experimental approach and supported prototyping the structure and process.
 
 The project is just to the point where it is being converted to a .NET solution.
 
