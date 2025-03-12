@@ -185,7 +185,7 @@ namespace MarkdownStaticWebsite.Services
                 {
                     // "R" is actually RFC-1123 where RFC-822 is required for RSS, but should be compatible
                     // https://stackoverflow.com/a/554093
-                    rssFileBuilder.AppendLine($"\t\t<pubDate>{DateTime.Parse(date).ToString("R")}</pubDate>");
+                    rssFileBuilder.AppendLine($"\t\t<pubDate>{DateTime.Parse(date).AddHours(12).ToString("R")}</pubDate>");
                 }
 
                 rssFileBuilder.AppendLine("\t</item>");
@@ -218,7 +218,7 @@ namespace MarkdownStaticWebsite.Services
 
                 sitemapXmlBuilder.AppendLine("\t<url>");
                 sitemapXmlBuilder.AppendLine($"\t\t<loc>{markdownFile.Url}</loc>");
-                sitemapXmlBuilder.AppendLine($"\t\t<lastmod>{dateModified.ToString("o")}</lastmod>");
+                sitemapXmlBuilder.AppendLine($"\t\t<lastmod>{dateModified.AddHours(12).ToString("o")}</lastmod>");
                 sitemapXmlBuilder.AppendLine("\t</url>");
             }
             sitemapXmlBuilder.AppendLine("</urlset>");
