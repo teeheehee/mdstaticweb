@@ -20,7 +20,7 @@ namespace MarkdownStaticWebsite.Entities
         public string Url { get; }
         public string MarkdownContent { get; }
         public string MarkdownHtmlContent { get; }
-        public string HtmlContent { get { return RenderedHtmlContent; } }
+        public string FullHtmlContent { get { return RenderedHtmlContent; } }
         public string TemplateType { get; }
         public IDictionary<string, string> ReplacementTagValues { get; }
 
@@ -131,7 +131,7 @@ namespace MarkdownStaticWebsite.Entities
 
         protected void EnsureAllPrerenderTagsAreReplaced()
         {
-            var remainingTags = Parser.GetReplacementTagsFromTemplateContents(HtmlContent);
+            var remainingTags = Parser.GetReplacementTagsFromTemplateContents(FullHtmlContent);
 
             var unhandledTags = remainingTags
                 .Where(rt => !(RendertimeTags ?? new List<string>())
@@ -147,7 +147,7 @@ namespace MarkdownStaticWebsite.Entities
 
         protected void EnsureAllTagsAreReplaced()
         {
-            var remainingTags = Parser.GetReplacementTagsFromTemplateContents(HtmlContent);
+            var remainingTags = Parser.GetReplacementTagsFromTemplateContents(FullHtmlContent);
 
             if (remainingTags.Count() > 0)
             {
@@ -157,8 +157,8 @@ namespace MarkdownStaticWebsite.Entities
 
         public void WriteOutputFile(IDictionary<string, string> finalTagReplacements)
         {
-            RenderedHtmlContent = Parser.ApplyTagReplacements(HtmlContent, ReplacementTagValues);
-            RenderedHtmlContent = Parser.ApplyTagReplacements(HtmlContent, finalTagReplacements);
+            RenderedHtmlContent = Parser.ApplyTagReplacements(FullHtmlContent, ReplacementTagValues);
+            RenderedHtmlContent = Parser.ApplyTagReplacements(FullHtmlContent, finalTagReplacements);
 
             // Check our work before committing to outputting the file
             EnsureAllTagsAreReplaced();
@@ -170,7 +170,7 @@ namespace MarkdownStaticWebsite.Entities
 
             using (FileStream fs = File.Create(BuildOutputFilePath))
             {
-                byte[] info = new UTF8Encoding(true).GetBytes(HtmlContent);
+                byte[] info = new UTF8Encoding(true).GetBytes(FullHtmlContent);
                 fs.Write(info, 0, info.Length);
             }
         }
