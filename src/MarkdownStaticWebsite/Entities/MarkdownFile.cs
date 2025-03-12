@@ -114,12 +114,15 @@ namespace MarkdownStaticWebsite.Entities
                 .Build();
 
             // Fix line endings from Html process, and indent for applying to the template
-            MarkdownHtmlContent = Parser.IndentContent(
+            MarkdownHtmlContent = Markdown.ToHtml(MarkdownContent, markdownPipeline)
+                .Replace("\n", Environment.NewLine);
+
+            var indentedMarkdownHtmlContent = Parser.IndentContent(
                 numberOfMarkdownTabs,
-                Markdown.ToHtml(MarkdownContent, markdownPipeline).Replace("\n", Environment.NewLine));
+                MarkdownHtmlContent);
 
             templateContents = templateContents
-                .Replace(Parser.GetTagReplacementSearchString(MarkdownContentTag), MarkdownHtmlContent)
+                .Replace(Parser.GetTagReplacementSearchString(MarkdownContentTag), indentedMarkdownHtmlContent)
                 .Replace(Parser.GetTagReplacementSearchString(PageUrlTag), Url);
 
             RenderedHtmlContent = templateContents;
