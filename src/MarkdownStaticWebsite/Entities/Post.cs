@@ -126,7 +126,7 @@ namespace MarkdownStaticWebsite.Entities
             }
 
             // Get Tag Ids
-            var tags = ReplacementTagValues["tags"].Split(',').Select(t => t.Trim()).ToList();
+            var tags = ReplacementTagValues["tags"].Split(',').Select(t => t.ToLower().Trim()).ToList();
             var tagsAndIds = WebsiteData.GetTagIdsByTags(tags, connection);
             var linkedTags = WebsiteData.GetBlogPostLinkedTagIds(postId.Value, connection);
             var tagsToRemove = linkedTags.Where(lt => !tags.Contains(lt.ToString()));
