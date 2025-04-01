@@ -9,6 +9,8 @@ namespace MarkdownStaticWebsite.Services
 {
     public class WebsiteService
     {
+        private static readonly string ConnectionString = $"Data Source={ConfigurationService.GetService().Configuration.DatabaseFile}";
+
         public WebsiteService() { }
 
         public static WebsiteStructure ProcessWebsiteFiles()
@@ -98,7 +100,7 @@ namespace MarkdownStaticWebsite.Services
             var renderTimeReplacements = new Dictionary<string, string>();
 
             // Collect/store DB metadata
-            using (var connection = new SQLiteConnection($"Data Source={ConfigurationService.GetService().Configuration.DatabaseFile}"))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
                 connection.Open();
 
@@ -140,9 +142,7 @@ namespace MarkdownStaticWebsite.Services
             }
         }
 
-        public static void GenerateAndWriteRssFeedFile(
-            IEnumerable<MarkdownFile> processedMarkdownFiles,
-            IDictionary<string, string> dbReplacementTagValues)
+        public static void GenerateAndWriteRssFeedFile(IDictionary<string, string> dbReplacementTagValues)
         {
             var rssFileBuilder = new StringBuilder();
             rssFileBuilder.AppendLine(@"<?xml version=""1.0"" encoding=""UTF-8"" ?>");
@@ -158,38 +158,25 @@ namespace MarkdownStaticWebsite.Services
             // TODO: add lastBuildDate (The last time the content of the channel changed.)
             // TODO: order by date of posts
 
-            foreach (var markdownFile in processedMarkdownFiles.Where(f => f.GetType() == typeof(Post)))
+            using (var connection = new SQLiteConnection(ConnectionString))
             {
-                rssFileBuilder.AppendLine("\t<item>");
+                connection.Open();
 
-                rssFileBuilder.AppendLine($"\t\t<link>{markdownFile.Url}</link>");
+                var rssItems = WebsiteData.GetRssItemsFromBlogPosts(connection);
 
-                if (markdownFile.ReplacementTagValues.TryGetValue("title", out string? title))
+                foreach (var rssItem in rssItems)
                 {
-                    rssFileBuilder.AppendLine($"\t\t<title>{System.Web.HttpUtility.HtmlEncode(title)}</title>");
-                }
-                else
-                {
-                    rssFileBuilder.AppendLine("\t\t<title>(no title)</title>");
-                }
-
-                // TODO: generate description for blog posts, for now use entire rendered html
-                rssFileBuilder.AppendLine($"\t\t<description>\n{System.Web.HttpUtility.HtmlEncode(markdownFile.MarkdownHtmlContent)}\n\t\t</description>");
-
-                // RSS specification requires <author> to be an e-mail address, and I don't like that restriction
-                //if (markdownFile.ReplacementTagValues.TryGetValue("author", out string? author))
-                //{
-                //    rssFileBuilder.AppendLine($"\t\t<author>{System.Web.HttpUtility.HtmlEncode(author)}</author>");
-                //}
-
-                if (markdownFile.ReplacementTagValues.TryGetValue("date", out string? date))
-                {
-                    // "R" is actually RFC-1123 where RFC-822 is required for RSS, but should be compatible
+                    rssFileBuilder.AppendLine("\t<item>");
+                    // RSS specification requires <author> to be an e-mail address, and I don't like that restriction
+                    rssFileBuilder.AppendLine($"\t\t<link>{rssItem.Link}</link>");
+                    var title = string.IsNullOrEmpty(rssItem.Title) ? "(no title)" : System.Web.HttpUtility.HtmlEncode(rssItem.Title);
+                    rssFileBuilder.AppendLine($"\t\t<title>{title}</title>");
+                    rssFileBuilder.AppendLine($"\t\t<description>\n{System.Web.HttpUtility.HtmlEncode(rssItem.Description)}\n\t\t</description>");
+                    // "R" is in RFC-1123; RSS requires RFC-822 but RFC-1123 should be compatible
                     // https://stackoverflow.com/a/554093
-                    rssFileBuilder.AppendLine($"\t\t<pubDate>{DateTime.Parse(date).AddHours(12).ToString("R")}</pubDate>");
+                    rssFileBuilder.AppendLine($"\t\t<pubDate>{rssItem.Date.AddHours(12).ToString("R")}</pubDate>");
+                    rssFileBuilder.AppendLine("\t</item>");
                 }
-
-                rssFileBuilder.AppendLine("\t</item>");
             }
 
             rssFileBuilder.AppendLine("</channel>");

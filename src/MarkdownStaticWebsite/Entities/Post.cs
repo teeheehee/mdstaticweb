@@ -1,5 +1,7 @@
 ﻿using MarkdownStaticWebsite.Repositories;
+using System.Configuration;
 using System.Data.SQLite;
+using System.Text.Json;
 
 namespace MarkdownStaticWebsite.Entities
 {
@@ -59,7 +61,14 @@ namespace MarkdownStaticWebsite.Entities
                         { "RelativePath", RelativeUrlPath },
                         { "RelativeUrl", RelativeUrl },
                         { "Url", Url },
-                        { "Title", ReplacementTagValues["title"] }
+                        { "Title", ReplacementTagValues["title"] },
+                        { "MarkdownContent", MarkdownContent },
+                        { "HtmlContent", MarkdownHtmlContent },
+                        { "ReplacementTagValues", ConvertReplacementTagsToJson() }
+                    },
+                    CollisionUpdateFields = new List<string>
+                    {
+                        "DateCreated", "Title", "MarkdownContent", "HtmlContent", "ReplacementTagValues"
                     }
                 }.GetUpsertCommand(connection)
             };
@@ -159,6 +168,13 @@ WHERE PostId = $postId
             }
 
             return results;
+        }
+        
+        private string ConvertReplacementTagsToJson()
+        {
+
+            var options = new JsonSerializerOptions(JsonSerializerDefaults.Web) { WriteIndented = true };
+            return JsonSerializer.Serialize(ReplacementTagValues, options);
         }
     }
 }

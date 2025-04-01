@@ -30,5 +30,5 @@ var processedMarkdownFiles = WebsiteService.ConvertMarkdownToHtml(websiteStructu
 WebsiteService.RenderAndWriteMarkdownFiles(processedMarkdownFiles);
 
 // Update RSS and Sitemap files
-WebsiteService.GenerateAndWriteRssFeedFile(processedMarkdownFiles, websiteStructure.DbReplacementTagValues);
+WebsiteService.GenerateAndWriteRssFeedFile(websiteStructure.DbReplacementTagValues);
 WebsiteService.GenerateAndWriteSitemapXmlFile(processedMarkdownFiles);

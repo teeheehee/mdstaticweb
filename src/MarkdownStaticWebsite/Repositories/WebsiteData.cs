@@ -81,7 +81,10 @@ CREATE TABLE IF NOT EXISTS ""BlogPosts""
 	""RelativePath"" TEXT NOT NULL,
 	""RelativeUrl"" TEXT NOT NULL UNIQUE,
 	""Url"" TEXT NOT NULL UNIQUE,
-	""Title"" TEXT NOT NULL
+	""Title"" TEXT NOT NULL,
+	""MarkdownContent"" TEXT NULL,
+	""HtmlContent"" TEXT NULL,
+	""ReplacementTagValues"" TEXT NULL
 )
 ";
 
@@ -381,6 +384,43 @@ ORDER BY NavigationPosition ASC
             }
 
             return HtmlHelpers.GetListItemLinks(titleAndUrls);
+        }
+
+        public static IEnumerable<RssItem> GetRssItemsFromBlogPosts(SQLiteConnection connection)
+        {
+
+            var query = @"
+SELECT Title, Url, HtmlContent, DateCreated
+FROM BlogPosts
+ORDER BY DateCreated ASC
+";
+
+            var command = connection.CreateCommand();
+            command.CommandText = query;
+
+            var rssItems = new List<RssItem>();
+
+            using (var resultsReader = command.ExecuteReader())
+            {
+                if (resultsReader.HasRows)
+                {
+                    while (resultsReader.Read())
+                    {
+                        var title = resultsReader["Title"].ToString();
+                        var url = resultsReader["Url"].ToString();
+                        var htmlContent = resultsReader["HtmlContent"].ToString();
+                        var dateCreated = Convert.ToDateTime(resultsReader["DateCreated"]);
+
+                        if (string.IsNullOrEmpty(title)) continue;
+                        if (string.IsNullOrEmpty(url)) continue;
+                        if (string.IsNullOrEmpty(htmlContent)) continue;
+
+                        rssItems.Add(new RssItem(url, title, htmlContent, dateCreated));
+                    }
+                }
+            }
+
+            return rssItems;
         }
 
         private static void CreateTableFromSql(string createTableSql, SQLiteConnection connection)
