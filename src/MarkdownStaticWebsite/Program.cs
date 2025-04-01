@@ -17,7 +17,7 @@ ConfigurationService.GetService(args.ToList().FirstOrDefault());
 StorageService.GetStorageService().PrepareDatabase();
 
 // Process templates to construct the structure of the website
-var websiteStructure = WebsiteService.ProcessTemplates();
+var websiteStructure = WebsiteService.ProcessWebsiteFiles();
 
 // Copy as-is files
 WebsiteService.CopyAsIsFiles(

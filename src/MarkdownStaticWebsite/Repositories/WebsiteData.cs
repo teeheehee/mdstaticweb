@@ -321,7 +321,7 @@ WHERE Tag IN ({string.Join(",", tagsList)})
             command.CommandText = query;
             for (var i = 0; i < tags.Count(); i++)
             {
-                command.Parameters.AddWithValue($"$tag{i}", tags.ElementAt(i));
+                command.Parameters.AddWithValue($"$tag{i}", tags.ElementAt(i).ToLower());
             }
 
             using (var resultsReader = command.ExecuteReader())

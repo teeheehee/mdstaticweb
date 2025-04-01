@@ -11,7 +11,7 @@ namespace MarkdownStaticWebsite.Services
     {
         public WebsiteService() { }
 
-        public static WebsiteStructure ProcessTemplates()
+        public static WebsiteStructure ProcessWebsiteFiles()
         {
             var templateFiles = FileHelpers.GetTemplateFiles(
                 ConfigurationService.GetService().Configuration.TemplatesFilesPath);
@@ -156,6 +156,7 @@ namespace MarkdownStaticWebsite.Services
 
             // TODO: add pubDate (The publication date for the content in the channel.)
             // TODO: add lastBuildDate (The last time the content of the channel changed.)
+            // TODO: order by date of posts
 
             foreach (var markdownFile in processedMarkdownFiles.Where(f => f.GetType() == typeof(Post)))
             {
